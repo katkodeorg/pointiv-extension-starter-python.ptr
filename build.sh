@@ -43,17 +43,6 @@ if ! resolve_extism_py; then
   exit 1
 fi
 
-if [[ ! -d .venv ]]; then
-  python3 -m venv .venv
-fi
-source .venv/bin/activate
-python -m pip install --upgrade pip --quiet
-python -m pip install -e ../pointiv-extension-sdk-python 2>/dev/null || \
-  python -m pip install "pointiv-extension-sdk>=0.3.2"
-
-SDK_ROOT="$(python -c 'import pointiv_extension_sdk, pathlib; print(pathlib.Path(pointiv_extension_sdk.__file__).resolve().parent.parent)')"
-export PYTHONPATH="${SDK_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
-
 "$EXTISM_PY" src/main.py -o "$OUTPUT"
 
 SIZE_KB=$(( $(wc -c < "$OUTPUT") / 1024 ))
