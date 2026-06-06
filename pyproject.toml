@@ -1,0 +1,12 @@
+[project]
+name = "hello-world-extension"
+version = "1.0.0"
+description = "Sample Pointiv community extension (WASM/Python)"
+requires-python = ">=3.10"
+dependencies = [
+  "pointiv-extension-sdk>=0.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
