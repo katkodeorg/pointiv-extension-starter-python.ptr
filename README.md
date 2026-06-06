@@ -12,12 +12,17 @@ https://github.com/<your-username>/<your-repo>
 
 ## Build
 
-Needs Python 3.10+ and `componentize-py`. `./build.sh` writes `extension.wasm` to the repo root. Commit that file so Pointiv can load it from GitHub.
+Needs Python 3.10+, [`extism-py`](https://github.com/extism/python-pdk), and [Binaryen](https://github.com/WebAssembly/binaryen) (`brew install binaryen`). `./build.sh` writes `extension.wasm` to the repo root. Commit that file so Pointiv can load it from GitHub.
 
 ```sh
-pip install componentize-py pointiv-extension-sdk
-./build.sh
+brew install binaryen
+curl -Ls https://raw.githubusercontent.com/extism/python-pdk/main/install.sh | bash
+pip install "pointiv-extension-sdk>=0.3.2"
+EXTISM_PY="$HOME/.local/bin/extism-py" ./build.sh
 ```
+
+`build.sh` uses `EXTISM_PY` so you don't need to add `~/.local/bin` to your global PATH.
+If `extism-py` is already on PATH, plain `./build.sh` still works.
 
 ## Try the API demos
 

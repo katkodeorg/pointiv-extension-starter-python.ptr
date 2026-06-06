@@ -21,13 +21,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install build tools
+      - name: Install binaryen
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install componentize-py pointiv-extension-sdk
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+
+      - name: Install extism-py
+        run: |
+          curl -Ls -o /tmp/extism-py-install.sh https://raw.githubusercontent.com/extism/python-pdk/main/install.sh
+          bash /tmp/extism-py-install.sh
 
       - name: Build
-        run: componentize-py -d src -w extension.wasm componentize main execute
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pointiv-extension-sdk>=0.3.2"
+          EXTISM_PY="$HOME/.local/bin/extism-py" ./build.sh
 
       - name: Commit updated extension.wasm
         uses: stefanzweifel/git-auto-commit-action@v5

@@ -1,18 +1,21 @@
 import json
 
+import extism
+
 from pointiv_extension_sdk import Input, output
 from pointiv_extension_sdk import google_calendar, google_gmail, http, log, storage
 
 
-def execute(input_json: str) -> str:
-    data = json.loads(input_json)
+@extism.plugin_fn
+def execute():
+    data = json.loads(extism.input_str())
     inp = Input(
         text=data.get("text", ""),
         context=data.get("context", ""),
         command=data.get("command", ""),
     )
     result = _run(inp)
-    return json.dumps({"type": result.type, "value": result.value})
+    extism.output_str(json.dumps({"type": result.type, "value": result.value}))
 
 
 def _run(inp: Input):

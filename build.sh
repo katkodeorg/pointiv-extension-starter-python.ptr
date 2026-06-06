@@ -2,26 +2,59 @@
 set -euo pipefail
 
 OUTPUT="extension.wasm"
+EXTISM_PY="${EXTISM_PY:-extism-py}"
+
+resolve_extism_py() {
+  if [[ -x "$EXTISM_PY" ]]; then
+    return 0
+  fi
+  if command -v "$EXTISM_PY" >/dev/null; then
+    EXTISM_PY="$(command -v "$EXTISM_PY")"
+    return 0
+  fi
+  return 1
+}
 
 if [[ "${1:-}" == "--check" ]]; then
   command -v python3 >/dev/null || { echo "python3 not found"; exit 1; }
-  echo "Toolchain OK (python3 found)"
+  resolve_extism_py || {
+    echo "extism-py not found."
+    echo "Run with: EXTISM_PY=\"\$HOME/.local/bin/extism-py\" ./build.sh --check"
+    exit 1
+  }
+  command -v wasm-opt >/dev/null || { echo "wasm-opt not found (brew install binaryen)"; exit 1; }
+  echo "Toolchain OK ($EXTISM_PY)"
   exit 0
 fi
 
-if ! command -v componentize-py >/dev/null; then
-  echo "componentize-py not found."
-  echo "Install with: pip install componentize-py"
+if ! resolve_extism_py; then
+  echo "extism-py not found."
+  echo "Install from: https://github.com/extism/python-pdk/releases"
+  echo "Then run:"
+  echo "  EXTISM_PY=\"\$HOME/.local/bin/extism-py\" ./build.sh"
   exit 1
 fi
 
-python3 -m pip install -e ../pointiv-extension-sdk-python 2>/dev/null || \
-  python3 -m pip install pointiv-extension-sdk
+if [[ ! -d .venv ]]; then
+  python3 -m venv .venv
+fi
+source .venv/bin/activate
+python -m pip install --upgrade pip --quiet
+python -m pip install -e ../pointiv-extension-sdk-python 2>/dev/null || \
+  python -m pip install "pointiv-extension-sdk>=0.3.2"
 
-componentize-py -d src -w "$OUTPUT" componentize main execute
+SDK_ROOT="$(python -c 'import pointiv_extension_sdk, pathlib; print(pathlib.Path(pointiv_extension_sdk.__file__).resolve().parent.parent)')"
+export PYTHONPATH="${SDK_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+
+"$EXTISM_PY" src/main.py -o "$OUTPUT"
+
+SIZE_KB=$(( $(wc -c < "$OUTPUT") / 1024 ))
+SHA=$(shasum -a 256 "$OUTPUT" | awk '{print $1}')
 
 echo ""
-echo "Built $OUTPUT"
+echo "Built $OUTPUT (${SIZE_KB} KB)"
+echo "SHA-256: $SHA"
+echo ""
 echo "Next steps:"
 echo "  git add $OUTPUT"
 echo "  git commit -m 'build: update extension.wasm'"
