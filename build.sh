@@ -23,6 +23,22 @@ resolve_extism_py() {
   return 1
 }
 
+install_sdk() {
+  if [[ -n "${POINTIV_SDK_PATH:-}" ]]; then
+    python -m pip install -e "$POINTIV_SDK_PATH" --quiet
+    return
+  fi
+  for candidate in \
+    ../pointiv-extension-sdk-python \
+    ./pointiv-extension-sdk-python; do
+    if [[ -f "$candidate/pyproject.toml" ]]; then
+      python -m pip install -e "$candidate" --quiet
+      return
+    fi
+  done
+  python -m pip install "pointiv-extension-sdk>=0.3.4" --quiet
+}
+
 if [[ "${1:-}" == "--check" ]]; then
   command -v python3 >/dev/null || { echo "python3 not found"; exit 1; }
   resolve_extism_py || {
@@ -43,7 +59,20 @@ if ! resolve_extism_py; then
   exit 1
 fi
 
-"$EXTISM_PY" src/main.py -o "$OUTPUT"
+if [[ ! -d .venv ]]; then
+  python3 -m venv .venv
+fi
+source .venv/bin/activate
+python -m pip install --upgrade pip --quiet
+install_sdk
+
+SDK_ROOT="$(python -c 'import pointiv_extension_sdk, pathlib; print(pathlib.Path(pointiv_extension_sdk.__file__).resolve().parent.parent)')"
+export PYTHONPATH="${SDK_ROOT}${PYTHONPATH:+:$PYTHONPATH}"
+
+BUILD_ENTRY=".build/entry.py"
+mkdir -p .build
+cat src/host_bindings.py src/main.py > "$BUILD_ENTRY"
+"$EXTISM_PY" "$BUILD_ENTRY" -o "$OUTPUT"
 
 SIZE_KB=$(( $(wc -c < "$OUTPUT") / 1024 ))
 SHA=$(shasum -a 256 "$OUTPUT" | awk '{print $1}')

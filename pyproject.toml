@@ -1,9 +1,9 @@
 [project]
 name = "hello-world-extension"
-version = "1.0.2"
-description = "Minimal Pointiv community extension (WASM/Python)"
+version = "1.1.0"
+description = "Pointiv community extension (WASM/Python)"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["pointiv-extension-sdk>=0.3.4"]
 
 [build-system]
 requires = ["hatchling"]

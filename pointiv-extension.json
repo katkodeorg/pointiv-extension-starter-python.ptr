@@ -1,10 +1,10 @@
 {
   "name": "Hello World",
-  "description": "Minimal Python/WASM Pointiv starter. Greets by name. Add SDK features after this runs successfully.",
-  "version": "1.0.2",
+  "description": "Sample Pointiv extension in Python/WASM. Greets you, tracks a run counter. Use as a starting point for your own extension.",
+  "version": "1.1.0",
   "author": "katkodeorg",
   "keywords": ["hello", "hello world", "greet", "greeting", "sample", "template"],
   "runtime": "wasm",
   "main": "extension.wasm",
-  "permissions": []
+  "permissions": ["storage", "network", "google_calendar", "google_gmail"]
 }
