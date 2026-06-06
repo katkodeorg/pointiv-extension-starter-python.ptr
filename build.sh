@@ -12,6 +12,14 @@ resolve_extism_py() {
     EXTISM_PY="$(command -v "$EXTISM_PY")"
     return 0
   fi
+  for candidate in \
+    "$HOME/.local/bin/extism-py" \
+    /usr/local/bin/extism-py; do
+    if [[ -x "$candidate" ]]; then
+      EXTISM_PY="$candidate"
+      return 0
+    fi
+  done
   return 1
 }
 
