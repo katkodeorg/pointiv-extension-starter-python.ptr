@@ -200,6 +200,9 @@ def render_tile():
     ui = tile.tile(
         "Todos",
         body=body,
-        footer=[tile.action("Refresh", "todo list")],
+        footer=[
+            tile.action("Add", "todo add", input="New todo"),
+            tile.action("Refresh", "todo list"),
+        ],
     )
     tile.output_tile(ui)
