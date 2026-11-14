@@ -36,7 +36,7 @@ install_sdk() {
       return
     fi
   done
-  python -m pip install "pointiv-extension-sdk>=0.3.4" --quiet
+  python -m pip install "pointiv-extension-sdk>=0.4.0" --quiet
 }
 
 if [[ "${1:-}" == "--check" ]]; then
